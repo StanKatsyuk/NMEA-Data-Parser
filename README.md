@@ -52,7 +52,7 @@ poetry run python main.py process-offline-file -i <input file path to NMEA log f
 
 A plot should be displayed 
 <br>
-<img src="assets/ttff_plot.png" alt="TTFF Plot" width="500" height="325" />
+<img src="assets/plot.png" alt="Plot" width="500" height="325" />
 
 
 ### Live NMEA Data Stream Processing
