@@ -1,5 +1,6 @@
 import click
 
+from handlers.uart import UART
 from utils.offline_parser import process_offline_file
 from utils.live_parser import LiveNMEAParser
 
@@ -26,33 +27,47 @@ def offline_parser(input: str):
     process_offline_file(input)
 
 
-# Note: This was not tested but is a conceptual approach to using serial to parse data
+# Note: This was not tested and is a conceptual approach to using serial to parse data
 @main.command(name="process-live-data")
 @click.option(
     "--serial-port",
     required=False,
+    default=None,
     help='Serial port name (e.g., "/dev/ttyUSB0") - Default: Use value in configs/config.yaml.',
 )
 @click.option(
     "--baudrate",
     type=int,
-    default=9600,
+    default=None,
     required=False,
     help="Baud rate for serial communication - Default: Use value in configs/config.yaml.",
 )
 @click.option(
     "--parity",
     type=click.Choice(["N", "E", "O", "S", "M"]),
-    default="N",
+    default=None,
     help="Parity setting for serial communication.",
 )
 @click.option(
-    "--stopbit", type=int, default=1, help="Stop bit setting for serial communication."
+    "--stopbit",
+    type=int,
+    default=None,
+    help="Stop bit setting for serial communication.",
 )
 def live_parser(serial_port: str, baudrate: int, parity: int, stopbit: int):
     """
-    Parses live NMEA data via the serial poort
+    Parses live NMEA data via the serial port.
     """
+    # Create an instance of UART and load configuration
+    uart_instance = UART()
+    config_values = uart_instance.load_from_config(UART.__protocol_name__())
+
+    # Use the provided values if not None, otherwise, use the values from the config
+    serial_port = serial_port or config_values.get("serial_port")
+    baudrate = baudrate or config_values.get("baudrate")
+    parity = parity or config_values.get("parity")
+    stopbit = stopbit or config_values.get("stopbit")
+
     live_parser = LiveNMEAParser(serial_port, baudrate, parity, stopbit)
     live_parser.parse_and_plot()
 

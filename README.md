@@ -3,7 +3,7 @@
 This repository contains a Python-based tool designed to parse NMEA logs. This tool has two features:
 
 1. Processes NMEA sentences to extract relevant data and provides insights into the number of satellites tracked over time and the Time to First Fix (TTFF) and plot it.
-2. Parse live NMEA data and process it.
+2. Parse live NMEA data and process it (Conceptual implementation).
 
 ## Table of Contents
 
@@ -50,8 +50,9 @@ To verify install, run `poetry --version` and verify you get the version output.
 poetry run python main.py process-offline-file -i <input file path to NMEA log file>
 ```
 
-A plot should be displayed
-![TTFF Plot](assets/ttff_plot.png){:width="100px" height="50px"}
+A plot should be displayed 
+<br>
+<img src="assets/ttff_plot.png" alt="TTFF Plot" width="500" height="325" />
 
 
 ### Live NMEA Data Stream Processing
