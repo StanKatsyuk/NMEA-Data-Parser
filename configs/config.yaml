@@ -1,12 +1,11 @@
 # Configuration settings for the GPS NMEA processing program.
-# This file contains settings related to the UART communication (port, baudrate) and other operational parameters.
+# This file contains settings related to the UART communication (port, baudrate, parity, etc) and other operational parameters.
 
 UART:
-  port: /dev/ttyUSB0
+  serial_port: '/dev/ttyUSB0'  #  This can vary based on platform/OS
   baudrate: 9600
-
-GPS_SCAN:
-  timeout: 10  # Number of seconds without receiving a valid sentence before assuming an unexpected end of scan or disruption.
+  parity: 'N'
+  stopbits: 1
 
 NMEA_LOGFILE:
   timestamp_prefix: "t="

@@ -1,7 +1,9 @@
 import click
 
 from utils.offline_parser import process_offline_file
-from utils.live_parser import read_live_data
+from utils.live_parser import LiveNMEAParser
+
+from serial import PARITY_NONE
 
 @click.group()
 def main():
@@ -15,16 +17,20 @@ def offline_parser(input: str):
     """
     process_offline_file(input)
 
-# TODO(Stan) Implement this
-# @main.command()
-# @click.option('--serial-port', required=True, help='Serial port name (e.g., "/dev/ttyUSB0").')
-# @click.option('--baudrate', type=int, required=True, help='Baud rate for serial communication.')
-# def live_parser(serial_port: str, baudrate: int):
-#     """
-#     Parses live NMEA data.
-#     """
-#     import live_parser  # Import the live_parser script
-#     live_parser.main(serial_port, baudrate)
+
+# Note: This was not tested but is a conceptual approach to using serial to parse data
+@main.command(name="process-live-data")
+@click.option('--serial-port', required=False, help='Serial port name (e.g., "/dev/ttyUSB0") - Default: Use value in configs/config.yaml.')
+@click.option('--baudrate', type=int, default=9600, required=False, help='Baud rate for serial communication - Default: Use value in configs/config.yaml.')
+@click.option('--parity', type=click.Choice(['N', 'E', 'O', 'S', 'M']), default='N', help='Parity setting for serial communication.')
+@click.option('--stopbit', type=int, default=1, help='Stop bit setting for serial communication.')
+def live_parser(serial_port: str, baudrate: int, parity: int, stopbit: int):
+    """
+    Parses live NMEA data via the serial poort
+    """
+    live_parser = LiveNMEAParser(serial_port, baudrate, parity, stopbit)
+    live_parser.parse_and_plot()
+
 
 if __name__ == "__main__":
     main()

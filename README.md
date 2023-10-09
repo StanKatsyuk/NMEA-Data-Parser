@@ -50,12 +50,17 @@ To verify install, run `poetry --version` and verify you get the version output.
 poetry run python main.py process-offline-file -i <input file path to NMEA log file>
 ```
 
+A plot should be displayed
+![TTFF Plot](assets/ttff_plot.png){:width="100px" height="50px"}
+
+
 ### Live NMEA Data Stream Processing
 
 (Note: This implemenation is theoretical and has not been fully tested)
 
 ```bash
-poetry run python main.py process-live-stream --port /dev/ttyUSB0 --baudrate 9600
+poetry run python main.py process-live-data --serial-port /dev/ttyUSB0 --baudrate 9600 --parity N --stopbit 1
+
 ```
 
 ## Configuration

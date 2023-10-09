@@ -7,11 +7,12 @@ from parsers.gprmc_parser import GPRMCParser
 from parsers.gpgsa_parser import GPGSAParser
 from parsers.gngsa_parser import GNGSAParser
 
-logger = Logger(__name__)
 
 class NMEAParser(BaseIO):
     def __init__(self, config_path: str = None, input_file: str = None):
         super().__init__(config_path)
+        # Use 
+        self.logger = Logger(__name__)
 
         nmea_log_config = self.load_from_config("NMEA_LOGFILE")
 
@@ -48,11 +49,11 @@ class NMEAParser(BaseIO):
 
             if self.log_capture_start_time is None:
                 self.log_capture_start_time = timestamp
-                logger.info(f'Start timestamp for satellite tracking: {self.log_capture_start_time}')
+                self.logger.debug(f'Start timestamp for satellite tracking: {self.log_capture_start_time}')
 
             sentence_type_match = re.search(r'\$([A-Za-z]{5})', sentence)
             if not sentence_type_match:
-                logger.error(f"No NMEA sentence type found in: {sentence}")
+                self.logger.error(f"No NMEA sentence type found in: {sentence}")
                 return
             sentence_type = sentence_type_match.group(1)
 
@@ -70,14 +71,15 @@ class NMEAParser(BaseIO):
                     if sentence_type == NMEASentence.GPGGA.name:
                         num_satellites = int(fields[7]) if fields[7] else 0
                         if num_satellites != 0 and self.log_capture_start_time is not None:
-                            self.ttff = timestamp - self.log_capture_start_time
+                            # Round to 2 decimal places
+                            self.ttff = round(timestamp - self.log_capture_start_time, 2)
                             self.has_fix = True
-                            logger.info(f'TTFF time: {self.ttff}, {num_satellites=}')
+                            self.logger.info(f'TTFF time: {self.ttff} - Number of Satellites tracked: {num_satellites}')
                             self.data.append((self.ttff, num_satellites))
                             return
 
         except ValueError as e:
-            logger.error(e)
+            self.logger.error(e)
 
     def get_data(self):
         return self.data

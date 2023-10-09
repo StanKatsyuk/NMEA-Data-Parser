@@ -30,9 +30,6 @@ def process_offline_file(input: str):
         timestamps = [point[0] for point in data]
         satellite_counts = [point[1] for point in data]
         ttff = parser.get_ttff()
-        print(f"Timestamps: {timestamps}")
-        print(f"Satellite Counts: {satellite_counts}")
-        print(f"TTFF: {ttff}")
         data_plotter.plot_data(timestamps, satellite_counts, ttff)
         if ttff is not None:
             logger.info(f"Time to First Fix (TTFF): {ttff} seconds")

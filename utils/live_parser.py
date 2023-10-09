@@ -1,57 +1,79 @@
-import time
 import serial
-import matplotlib.pyplot as plt
 from parsers.gpgga_parser import GPGGAParser
 from services.ttff import TTFFService
 from presentation.data_plotter import DataPlotter
 from utils.logger import Logger
 
-def read_live_data(serial_port: str, baudrate: int):
-    """
-    Reads live NMEA data from a serial port and returns a generator of sentences.
+class LiveNMEAParser:
+    def __init__(self, serial_port: str, baudrate: int, parity: int = None, stopbit: int = 1):
+        """
+        Initialize the LiveNMEAParser.
 
-    Args:
-        serial_port (str): Serial port name (e.g., '/dev/ttyUSB0').
-        baudrate (int): Baud rate for serial communication.
+        Args:
+            serial_port (str): Serial port name (e.g., '/dev/ttyUSB0').
+            baudrate (int): Baud rate for serial communication.
+            parity (int, optional): Parity setting for serial communication. Default is None.
+            stopbit (int, optional): Stop bit setting for serial communication. Default is 1.
 
-    Yields:
-        str: NMEA sentences received from the serial port.
-    """
-    with serial.Serial(serial_port, baudrate) as ser:
-        while True:
-            sentence = ser.readline().decode().strip()
-            yield sentence
+        Attributes:
+            serial_port (str): Serial port name.
+            baudrate (int): Baud rate.
+            parity (int): Parity setting.
+            stopbit (int): Stop bit setting.
+            logger (Logger): Logger instance.
+            parser (GPGGAParser): NMEA sentence parser.
+            ttff_service (TTFFService): TTFF service for tracking time to first fix.
+            data_plotter (DataPlotter): Data plotter for visualization.
+        """
+        self.serial_port = serial_port
+        self.baudrate = baudrate
+        self.parity = parity
+        self.stopbit = stopbit
+        self.logger = Logger("logger")
+        self.parser = GPGGAParser()
+        self.ttff_service = TTFFService()
+        self.data_plotter = DataPlotter()
 
-def main(serial_port: str, baudrate: int):
-    logger = Logger()
-    parser = GPGGAParser()
-    ttff_service = TTFFService()
-    data_plotter = DataPlotter()
+    def read_live_data(self):
+        """
+        Read live NMEA data from the serial port and yield sentences.
 
-    timestamps = []
-    satellite_counts = []
+        Yields:
+            str: NMEA sentences received from the serial port.
+        """
+        # Use a context manager for handling serial communication
+        with serial.Serial(self.serial_port, self.baudrate, parity=self.parity, stopbits=self.stopbit) as ser:
+            while True:
+                sentence = ser.readline().decode().strip()
+                yield sentence
 
-    for sentence in read_live_data(serial_port, baudrate):
-        timestamp, satellite_count = parser.parse_sentence(sentence)
-        if timestamp is not None and satellite_count is not None:
-            timestamps.append(timestamp)
-            satellite_counts.append(satellite_count)
-            ttff_service.update(timestamp, satellite_count)
+    def parse_and_plot(self):
+        """
+        Parse live NMEA data, plot the data, and log TTFF.
+        """
+        timestamps = []
+        satellite_counts = []
 
-            # Check for the end of a GPS scan (e.g., based on a condition)
-            if condition_for_scan_end:
-                break
+        for sentence in self.read_live_data():
+            timestamp, satellite_count = self.parser.parse_sentence(sentence)
+            if timestamp is not None and satellite_count is not None:
+                timestamps.append(timestamp)
+                satellite_counts.append(satellite_count)
+                self.ttff_service.update(timestamp, satellite_count)
 
-    # Post-processing
-    data_plotter.plot_data(timestamps, satellite_counts)
-    logger.info(f"Time to First Fix (TTFF): {ttff_service.get_ttff()} seconds")
+                # Check for the end of a GPS scan (e.g., based on a condition)
+                if self.is_scan_complete():
+                    break
 
-if __name__ == "__main__":
-    # Define command-line arguments for live parsing
-    import argparse
-    parser = argparse.ArgumentParser(description="Live NMEA data parser")
-    parser.add_argument("--serial-port", required=True, help="Serial port name (e.g., '/dev/ttyUSB0')")
-    parser.add_argument("--baudrate", type=int, required=True, help="Baud rate for serial communication")
-    args = parser.parse_args()
+        # Post-processing
+        self.data_plotter.plot_data(timestamps, satellite_counts)
+        self.logger.info(f"Time to First Fix (TTFF): {self.ttff_service.get_ttff()} seconds")
 
-    main(args.serial_port, args.baudrate)
+    def is_scan_complete(self):
+        """
+        This is where we will implement the serial clean up once transmission ends
+
+        Returns:
+            bool: True if the scan is complete, False otherwise.
+        """
+        return False

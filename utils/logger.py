@@ -51,7 +51,7 @@ class Logger:
         self.logger.addHandler(console_handler)
 
     def debug(self, message: str) -> None:
-        self.logger.info(message)
+        self.logger.debug(message)
 
     def info(self, message: str) -> None:
         self.logger.info(message)
