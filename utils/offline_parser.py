@@ -36,7 +36,10 @@ def process_offline_file(input: str):
                     first_fix_timestamp = parser.get_ttff()
 
     # Fetching parsed data and plotting
-    timestamps, satellite_counts = zip(*parser.get_data())
-    data_plotter.plot_data(timestamps, satellite_counts, first_fix_timestamp)
-
-    logger.info(f"Time to First Fix (TTFF): {first_fix_timestamp} seconds")
+    data = parser.get_data()
+    if data:
+        timestamps, satellite_counts = zip(*data)
+        data_plotter.plot_data(timestamps, satellite_counts, first_fix_timestamp)
+        logger.info(f"Time to First Fix (TTFF): {first_fix_timestamp} seconds")
+    else:
+        logger.warning("No data available to plot.")

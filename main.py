@@ -1,6 +1,7 @@
 import click
 
 from utils.offline_parser import process_offline_file
+from utils.live_parser import read_live_data
 
 @click.group()
 def main():
@@ -13,9 +14,6 @@ def offline_parser(input: str):
     Parses the offline NMEA log file and plots the number of satellites tracked as a function of time and outputs time to first fix (TTFF)
     """
     process_offline_file(input)
-
-if __name__ == "__main__":
-    main()
 
 # TODO(Stan) Implement this
 # @main.command()

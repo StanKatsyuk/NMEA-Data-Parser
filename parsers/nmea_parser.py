@@ -47,8 +47,14 @@ class NMEAParser(BaseIO):
         # List to store parsed data
         self.data: list[tuple[float, int]] = []
         
-        # Time to First Fix (initialized to None and updated when first fix is identified)
-        self.ttff: Optional[float] = None
+        # Time to First Fix (initialized to None and updated as each fix is identified)
+        self.ttffs: list[float] = []
+
+        # Variable to track if we have a fix on a satellite
+        self.has_fix = False
+
+        # Variable to track the start time of parsing log file (first timestamp encountered)
+        self.start_time: Optional[float] = None
 
     def parse_sentence(self, sentence: str) -> None:
         """
@@ -68,7 +74,7 @@ class NMEAParser(BaseIO):
             timestamp_str = timestamp_match.group(1)
             timestamp = float(timestamp_str)
 
-            # Extract sentence type using regex
+            # Extract NMEA sentence type using regex
             sentence_type_match = re.search(r'\$([A-Za-z]{5})', sentence)
 
             if sentence_type_match:
@@ -95,13 +101,19 @@ class NMEAParser(BaseIO):
             if parser:
                 result = parser.parse(timestamp, fields)
 
-                # Check if the result contains relevant data
-                if result and 'timestamp' in result and 'satellites_tracked' in result:
-                        self.data.append((result['timestamp'], result['satellites_tracked']))
+                # Update start_time if it's not set yet
+                if self.start_time is None:
+                    self.start_time = timestamp
 
-                        # Update Time to First Fix if satellites are being tracked and ttff is not yet set
-                        if self.ttff is None and result['satellites_tracked'] is not None and result['satellites_tracked'] > 0:
-                            self.ttff = result['timestamp']
+                # Check if the result contains a timestamp
+                if result and 'timestamp' in result:
+                    satellites_tracked = result.get('satellites_tracked', 0)  # Default to 0 if not present
+                    self.data.append((result['timestamp'], satellites_tracked))
+
+                    # If satellites are being tracked and we don't have a fix, capture TTFF and indicate we have a fix
+                    if not self.has_fix and satellites_tracked > 0:
+                        self.ttff = result['timestamp'] - self.start_time
+                        self.has_fix = True
                 else:
                     pass
 
@@ -124,4 +136,4 @@ class NMEAParser(BaseIO):
         Returns:
             Optional[float]: Time to First Fix in seconds if available, else None.
         """
-        return self.ttff
+        return self.ttffs[0] if self.ttffs else None

@@ -2,7 +2,9 @@ from typing import Optional
 from parsers.base_parser import BaseNMEAParser
 from utils.logger import Logger
 
+
 logger = Logger(__name__)
+
 
 class GPRMCParser(BaseNMEAParser):
     def parse(self, timestamp: float, fields: list[str]) -> Optional[dict[str, str]]:
@@ -28,5 +30,5 @@ class GPRMCParser(BaseNMEAParser):
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPRMC sentence: {','.join(fields)}")
             logger.error(f"Error details: {str(e)}")
-            
+
             return None

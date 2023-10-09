@@ -28,12 +28,15 @@ class GPGGAParser(BaseNMEAParser):
             'fix_status': None,  # Default fix status in case of parsing errors
             'satellites_tracked': None  # Default value in case of parsing errors
         }
-        
+            
         try:
             if len(fields) >= 8:
-                data['fix_status'] = fields[6]  # GPS fix status (0=invalid, 1=GPS fix, 2=Diff)
+                data['fix_status'] = fields[6]
+                # Check if the field is not empty before converting to int
+                if fields[7]:
+                    data['satellites_tracked'] = int(fields[7])
+                else:
+                    data['satellites_tracked'] = None
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPGGA sentence: {','.join(fields)}")
             logger.error(f"{str(e)}")
-
-        return data
