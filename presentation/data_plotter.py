@@ -4,8 +4,14 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
+
 class DataPlotter:
-    def plot_data(self, timestamps: list[float], satellite_counts: list[int], ttff: Optional[float]):
+    def plot_data(
+        self,
+        timestamps: list[float],
+        satellite_counts: list[int],
+        ttff: Optional[float],
+    ):
         """
         Plot the data showing the number of satellites tracked as a function of time.
 
@@ -16,16 +22,18 @@ class DataPlotter:
         Returns:
             None
         """
-        logger.info(f'Will attempt to plot {timestamps=}, {satellite_counts=}, {ttff=}')
+        logger.info(f"Will attempt to plot {timestamps=}, {satellite_counts=}, {ttff=}")
 
         # Plot the data and assign labels
-        plt.plot(timestamps, satellite_counts, '-o', label='Satellites First Tracked')
+        plt.plot(timestamps, satellite_counts, "-o", label="Satellites First Tracked")
         if ttff:
-            plt.axvline(x=ttff, color='r', linestyle='--', label=f'TTFF at {ttff} seconds')
+            plt.axvline(
+                x=ttff, color="r", linestyle="--", label=f"TTFF at {ttff} seconds"
+            )
 
-        plt.xlabel('Time (seconds)')
-        plt.ylabel('Number of Satellites')
-        plt.title('Satellites Tracked vs Time')
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Number of Satellites")
+        plt.title("Satellites Tracked vs Time")
         plt.grid(True)
 
         # Set y-axis ticks to display integers only
@@ -38,9 +46,9 @@ class DataPlotter:
         plt.show()
 
     def plot_ttff(self, ttff: float):
-        plt.axvline(x=ttff, color='r', linestyle='--', label=f'TTFF: {ttff} s')
-        plt.xlabel('Time (seconds)')
-        plt.title('Time to First Fix (TTFF)')
+        plt.axvline(x=ttff, color="r", linestyle="--", label=f"TTFF: {ttff} s")
+        plt.xlabel("Time (seconds)")
+        plt.title("Time to First Fix (TTFF)")
         plt.grid(True)
         plt.legend()
         plt.show()

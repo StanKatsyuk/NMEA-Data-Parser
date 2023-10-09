@@ -1,8 +1,11 @@
 import logging
 from pathlib import Path
 
+
 class Logger:
-    def __init__(self, name: str, log_file_path: str = None, log_level: int = logging.INFO) -> None:
+    def __init__(
+        self, name: str, log_file_path: str = None, log_level: int = logging.INFO
+    ) -> None:
         """
         A custom logger class that provides file and console logging with flexible log levels.
 
@@ -22,18 +25,20 @@ class Logger:
         """
         self.logger = logging.getLogger(name)
         self.logger.setLevel(log_level)
-        
+
         # Create a formatter
         formatter = logging.Formatter("%(asctime)s [%(levelname)s]: %(message)s")
-        
+
         # Create a file handler if log_file_path is provided
         if log_file_path:
             self.add_file_handler(log_file_path, formatter)
-        
+
         # Create a console handler
         self.add_console_handler(formatter)
 
-    def add_file_handler(self, log_file_path: str, formatter: logging.Formatter) -> None:
+    def add_file_handler(
+        self, log_file_path: str, formatter: logging.Formatter
+    ) -> None:
         # Ensure the log directory exists
         log_dir = Path(log_file_path).parent
         # Create output dir if it doesn't exist

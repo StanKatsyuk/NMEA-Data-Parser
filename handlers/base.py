@@ -8,7 +8,10 @@ CONFIG_PATH = current_dir.parent / "configs" / "config.yaml"
 
 
 if not CONFIG_PATH.exists():
-    raise FileNotFoundError(f"Config file does not exist at {CONFIG_PATH} - Check provided path")
+    raise FileNotFoundError(
+        f"Config file does not exist at {CONFIG_PATH} - Check provided path"
+    )
+
 
 class BaseIO:
     def __init__(self, config_path: str = CONFIG_PATH.as_posix()):
@@ -29,6 +32,6 @@ class BaseIO:
         Returns:
             dict: Dictionary containing IO configuration settings for the specified protocol.
         """
-        with open(self.config_path, 'r') as file:
+        with open(self.config_path, "r") as file:
             config_data = yaml.safe_load(file)
             return config_data[protocol]

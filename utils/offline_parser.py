@@ -4,9 +4,10 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
+
 def process_offline_file(input: str):
     """
-    Processes the offline NMEA log file, parses the sentences to extract the number 
+    Processes the offline NMEA log file, parses the sentences to extract the number
     of satellites tracked at each timestamp, and plots the satellite count as a function of time.
 
     Args:

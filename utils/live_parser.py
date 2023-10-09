@@ -4,8 +4,11 @@ from services.ttff import TTFFService
 from presentation.data_plotter import DataPlotter
 from utils.logger import Logger
 
+
 class LiveNMEAParser:
-    def __init__(self, serial_port: str, baudrate: int, parity: int = None, stopbit: int = 1):
+    def __init__(
+        self, serial_port: str, baudrate: int, parity: int = None, stopbit: int = 1
+    ):
         """
         Initialize the LiveNMEAParser.
 
@@ -42,7 +45,9 @@ class LiveNMEAParser:
             str: NMEA sentences received from the serial port.
         """
         # Use a context manager for handling serial communication
-        with serial.Serial(self.serial_port, self.baudrate, parity=self.parity, stopbits=self.stopbit) as ser:
+        with serial.Serial(
+            self.serial_port, self.baudrate, parity=self.parity, stopbits=self.stopbit
+        ) as ser:
             while True:
                 sentence = ser.readline().decode().strip()
                 yield sentence
@@ -67,7 +72,9 @@ class LiveNMEAParser:
 
         # Post-processing
         self.data_plotter.plot_data(timestamps, satellite_counts)
-        self.logger.info(f"Time to First Fix (TTFF): {self.ttff_service.get_ttff()} seconds")
+        self.logger.info(
+            f"Time to First Fix (TTFF): {self.ttff_service.get_ttff()} seconds"
+        )
 
     def is_scan_complete(self):
         """

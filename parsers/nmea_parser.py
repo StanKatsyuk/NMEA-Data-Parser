@@ -11,7 +11,7 @@ from parsers.gngsa_parser import GNGSAParser
 class NMEAParser(BaseIO):
     def __init__(self, config_path: str = None, input_file: str = None):
         super().__init__(config_path)
-        # Use 
+        # Use
         self.logger = Logger(__name__)
 
         nmea_log_config = self.load_from_config("NMEA_LOGFILE")
@@ -24,7 +24,7 @@ class NMEAParser(BaseIO):
             NMEASentence.GPGGA: GPGGAParser(),
             NMEASentence.GPRMC: GPRMCParser(),
             NMEASentence.GPGSA: GPGSAParser(),
-            NMEASentence.GNGSA: GNGSAParser()
+            NMEASentence.GNGSA: GNGSAParser(),
         }
 
         self.data = []
@@ -33,7 +33,7 @@ class NMEAParser(BaseIO):
         self.input_file = input_file
 
     def parse_log_file(self, input_file: str):
-        with open(input_file, 'r') as file:
+        with open(input_file, "r") as file:
             for line in file:
                 line = line.strip()
                 if not self.has_fix:
@@ -43,15 +43,17 @@ class NMEAParser(BaseIO):
 
     def parse_sentence(self, sentence: str):
         try:
-            timestamp_match = re.search(r't=(\d+\.\d+|\d+)', sentence)
+            timestamp_match = re.search(r"t=(\d+\.\d+|\d+)", sentence)
             timestamp_str = timestamp_match.group(1)
             timestamp = float(timestamp_str)
 
             if self.log_capture_start_time is None:
                 self.log_capture_start_time = timestamp
-                self.logger.debug(f'Start timestamp for satellite tracking: {self.log_capture_start_time}')
+                self.logger.debug(
+                    f"Start timestamp for satellite tracking: {self.log_capture_start_time}"
+                )
 
-            sentence_type_match = re.search(r'\$([A-Za-z]{5})', sentence)
+            sentence_type_match = re.search(r"\$([A-Za-z]{5})", sentence)
             if not sentence_type_match:
                 self.logger.error(f"No NMEA sentence type found in: {sentence}")
                 return
@@ -70,11 +72,18 @@ class NMEAParser(BaseIO):
                 if parsed_data:
                     if sentence_type == NMEASentence.GPGGA.name:
                         num_satellites = int(fields[7]) if fields[7] else 0
-                        if num_satellites != 0 and self.log_capture_start_time is not None:
+                        if (
+                            num_satellites != 0
+                            and self.log_capture_start_time is not None
+                        ):
                             # Round to 2 decimal places
-                            self.ttff = round(timestamp - self.log_capture_start_time, 2)
+                            self.ttff = round(
+                                timestamp - self.log_capture_start_time, 2
+                            )
                             self.has_fix = True
-                            self.logger.info(f'TTFF time: {self.ttff} - Number of Satellites tracked: {num_satellites}')
+                            self.logger.info(
+                                f"TTFF time: {self.ttff} - Number of Satellites tracked: {num_satellites}"
+                            )
                             self.data.append((self.ttff, num_satellites))
                             return
 

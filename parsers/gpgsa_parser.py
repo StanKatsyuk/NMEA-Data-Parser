@@ -4,6 +4,7 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
+
 class GPGSAParser(BaseNMEAParser):
     def parse(self, timestamp: float, fields: list[str]) -> dict[str, Optional[str]]:
         """
@@ -22,22 +23,22 @@ class GPGSAParser(BaseNMEAParser):
             Returns a dictionary with 'fix_status' set to None if parsing fails.
         """
         data = {
-            'timestamp': timestamp,
-            'fix_status': None  # Default fix status in case of parsing errors
+            "timestamp": timestamp,
+            "fix_status": None,  # Default fix status in case of parsing errors
         }
-        
+
         try:
             mode = fields[2]
-            if mode == '':
-                data['fix_status'] = "No Mode"  # Handle empty string
+            if mode == "":
+                data["fix_status"] = "No Mode"  # Handle empty string
             else:
                 mode = int(mode)
                 if mode == 1:
-                    data['fix_status'] = "No Fix"
+                    data["fix_status"] = "No Fix"
                 elif mode == 2:
-                    data['fix_status'] = "2D Fix"
+                    data["fix_status"] = "2D Fix"
                 elif mode == 3:
-                    data['fix_status'] = "3D Fix"
+                    data["fix_status"] = "3D Fix"
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPGSA sentence: {','.join(fields)}")
             logger.error(f"{e}")

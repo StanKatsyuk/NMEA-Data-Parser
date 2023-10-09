@@ -24,8 +24,8 @@ class GPRMCParser(BaseNMEAParser):
         """
         data = {}
         try:
-            data['timestamp'] = timestamp
-            data['fix_status'] = fields[2]  # 'A' = data valid, 'V' = data not valid
+            data["timestamp"] = timestamp
+            data["fix_status"] = fields[2]  # 'A' = data valid, 'V' = data not valid
             return data
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPRMC sentence: {','.join(fields)}")

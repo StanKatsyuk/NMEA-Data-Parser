@@ -4,6 +4,7 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
+
 class GNGSAParser(BaseNMEAParser):
     def parse(self, timestamp: float, fields: list[str]) -> dict[str, Optional[str]]:
         """
@@ -22,18 +23,18 @@ class GNGSAParser(BaseNMEAParser):
             Returns a dictionary with 'fix_status' set to None if parsing fails.
         """
         data = {
-            'timestamp': timestamp,
-            'fix_status': None  # Default fix status in case of parsing errors
+            "timestamp": timestamp,
+            "fix_status": None,  # Default fix status in case of parsing errors
         }
-        
+
         try:
             mode = int(fields[2])
             if mode == 1:
-                data['fix_status'] = "No Fix"
+                data["fix_status"] = "No Fix"
             elif mode == 2:
-                data['fix_status'] = "2D Fix"
+                data["fix_status"] = "2D Fix"
             elif mode == 3:
-                data['fix_status'] = "3D Fix"
+                data["fix_status"] = "3D Fix"
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GNGSA sentence: {','.join(fields)}")
             logger.error(f"{str(e)}")

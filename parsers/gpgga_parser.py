@@ -4,6 +4,7 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
+
 class GPGGAParser(BaseNMEAParser):
     def parse(self, timestamp: float, fields: list[str]) -> dict[str, Optional[str]]:
         """
@@ -24,31 +25,33 @@ class GPGGAParser(BaseNMEAParser):
             Returns a dictionary with None values for fix_status and satellites_tracked if parsing fails.
         """
         data = {
-            'timestamp': timestamp,
-            'fix_status': None,  # Default fix status in case of parsing errors
-            'satellites_tracked': None  # Default value in case of parsing errors
+            "timestamp": timestamp,
+            "fix_status": None,  # Default fix status in case of parsing errors
+            "satellites_tracked": None,  # Default value in case of parsing errors
         }
-            
+
         try:
             if len(fields) >= 8:
                 # Convert the fix status from a number to a descriptive string
                 fix_status_map = {
-                    '0': 'No Fix',
-                    '1': 'GPS Fix',
-                    '2': 'DGPS Fix',
-                    '3': 'PPS Fix',
-                    '4': 'Real Time Kinematic',
-                    '5': 'Float RTK',
-                    '6': 'Estimated (dead reckoning)',
-                    '7': 'Manual input mode',
-                    '8': 'Simulation mode'
+                    "0": "No Fix",
+                    "1": "GPS Fix",
+                    "2": "DGPS Fix",
+                    "3": "PPS Fix",
+                    "4": "Real Time Kinematic",
+                    "5": "Float RTK",
+                    "6": "Estimated (dead reckoning)",
+                    "7": "Manual input mode",
+                    "8": "Simulation mode",
                 }
                 fix_status = fields[6]
-                data['fix_status'] = fix_status_map.get(fix_status, 'Unknown')
+                data["fix_status"] = fix_status_map.get(fix_status, "Unknown")
 
                 # Parse the number of satellites tracked
                 satellites_tracked = fields[7]
-                data['satellites_tracked'] = int(satellites_tracked) if satellites_tracked else 0
+                data["satellites_tracked"] = (
+                    int(satellites_tracked) if satellites_tracked else 0
+                )
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPGGA sentence: {','.join(fields)}")
             logger.error(str(e))
