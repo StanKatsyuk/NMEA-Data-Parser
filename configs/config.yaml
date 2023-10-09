@@ -12,3 +12,4 @@ NMEA_LOGFILE:
   timestamp_prefix: "t="
   delimiter: ", "
   field_separator: ","
+  nmea_type_prefix: "$"

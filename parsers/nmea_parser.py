@@ -1,7 +1,6 @@
-from typing import List, Tuple, Optional, Union
-
+import re
+from typing import Optional
 from utils.logger import Logger
-
 from data_types.nmea import NMEASentence
 from handlers.base import BaseIO
 from parsers.gpgga_parser import GPGGAParser
@@ -31,9 +30,11 @@ class NMEAParser(BaseIO):
         # Load config data
         nmea_log_config = self.load_from_config("NMEA_LOGFILE")
 
+        # Set log specific params
         self.timestamp_prefix = nmea_log_config.get("timestamp_prefix", "t=")  # Default to "t=" if not found in provided config file
         self.log_delimiter = nmea_log_config.get("delimiter", ", ")  # Default to ", " if not found in provided config file
         self.field_separator = nmea_log_config.get("field_separator", ",")  # Default to ", " if not found in provided config file
+        self.nmea_type_prefix = nmea_log_config.get("nmea_type_prefix", "$")  # Default to "$" if not found in provided config file
 
         # Dictionary mapping NMEA sentence prefixes to their respective parsers
         self.parsers = {
@@ -44,7 +45,7 @@ class NMEAParser(BaseIO):
         }
         
         # List to store parsed data
-        self.data: List[Tuple[float, int]] = []
+        self.data: list[tuple[float, int]] = []
         
         # Time to First Fix (initialized to None and updated when first fix is identified)
         self.ttff: Optional[float] = None
@@ -52,44 +53,67 @@ class NMEAParser(BaseIO):
     def parse_sentence(self, sentence: str) -> None:
         """
         Parse an individual NMEA sentence.
-        
+
         Args:
             sentence (str): Raw NMEA sentence.
         """
         try:
-            # Extract timestamp using the loaded prefix
-            if sentence.startswith(self.timestamp_prefix):
-                timestamp_str, sentence_part = sentence.split(self.log_delimiter, 1)
-                timestamp = float(timestamp_str[len(self.timestamp_prefix):])  # Removing prefix and converting to float
+            # Use regex to extract the timestamp
+            timestamp_match = re.search(r't=(\d+\.\d+|\d+)', sentence)
+            
+            if not timestamp_match:
+                logger.error(f"No timestamp found in sentence: {sentence}")
+                return
+            
+            timestamp_str = timestamp_match.group(1)
+            timestamp = float(timestamp_str)
+
+            # Extract sentence type using regex
+            sentence_type_match = re.search(r'\$([A-Za-z]{5})', sentence)
+
+            if sentence_type_match:
+                sentence_type = sentence_type_match.group(1)
             else:
-                logger.error(f"Unexpected prefix in sentence: {sentence}")
+                logger.error(f"No NMEA sentence type found in: {sentence}")
                 return
 
-            fields = sentence_part.split(self.field_separator)
-            sentence_type = fields[0]
-            
+            # Check if there is a comma after the timestamp, and split accordingly
+            if self.field_separator in sentence:
+                sentence_data = sentence.split(self.field_separator, 1)[1]
+            else:
+                sentence_data = sentence
+
+            fields = sentence_data.split(self.field_separator)
+
+            if not sentence_type:
+                logger.error(f"Empty or invalid sentence type: {sentence}")
+                return  # Skip further processing for invalid sentence types
+
             # Fetch the parser for the given sentence type
-            parser = self.parsers.get(sentence_type)
-            
-            # If parser exists, parse the sentence
+            parser = self.parsers.get(NMEASentence[sentence_type])
+
             if parser:
                 result = parser.parse(timestamp, fields)
-                if 'timestamp' in result and 'satellites_tracked' in result:
-                    self.data.append((result['timestamp'], result['satellites_tracked']))
-                    
-                    # Update Time to First Fix if satellites are being tracked and ttff is not yet set
-                    if self.ttff is None and result['satellites_tracked'] > 0:
-                        self.ttff = result['timestamp']
 
-        except ValueError:
-            logger.error(f"Error parsing sentence: {sentence}")
+                # Check if the result contains relevant data
+                if result and 'timestamp' in result and 'satellites_tracked' in result:
+                        self.data.append((result['timestamp'], result['satellites_tracked']))
 
-    def get_data(self) -> List[Tuple[float, int]]:
+                        # Update Time to First Fix if satellites are being tracked and ttff is not yet set
+                        if self.ttff is None and result['satellites_tracked'] is not None and result['satellites_tracked'] > 0:
+                            self.ttff = result['timestamp']
+                else:
+                    pass
+
+        except ValueError as e:
+            logger.error(e)
+
+    def get_data(self) -> list[tuple[float, int]]:
         """
         Return parsed data.
         
         Returns:
-            List[Tuple[float, int]]: List of tuples with timestamp and number of satellites tracked.
+            list[tuple[float, int]]: List of tuples with timestamp and number of satellites tracked.
         """
         return self.data
 

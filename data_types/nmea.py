@@ -1,10 +1,10 @@
 from enum import Enum
 
 class NMEASentence(Enum):
-    GPGGA = "$GPGGA"
-    GPRMC = "$GPRMC"
-    GPGSA = "$GPGSA"
-    GNGSA = "$GNGSA"
+    GPGGA = "GPGGA"
+    GPRMC = "GPRMC"
+    GPGSA = "GPGSA"
+    GNGSA = "GNGSA"
 
 class NMEAField(Enum):
     UTC_TIME = 1 
