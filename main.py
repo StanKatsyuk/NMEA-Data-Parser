@@ -1,7 +1,7 @@
 import click
 
 from handlers.uart import UART
-from utils.offline_parser import process_offline_file
+from utils.offline_parser import OfflineNMEAProcessor
 from utils.live_parser import LiveNMEAParser
 
 from serial import PARITY_NONE
@@ -24,7 +24,8 @@ def offline_parser(input: str):
     """
     Parses the offline NMEA log file and plots the number of satellites tracked as a function of time and outputs time to first fix (TTFF)
     """
-    process_offline_file(input)
+    parser = OfflineNMEAProcessor(input)
+    parser.process()
 
 
 # Note: This was not tested and is a conceptual approach to using serial to parse data

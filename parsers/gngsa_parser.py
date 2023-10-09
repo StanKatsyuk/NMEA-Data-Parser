@@ -2,10 +2,12 @@ from typing import Optional
 from parsers.base_parser import BaseNMEAParser
 from utils.logger import Logger
 
-logger = Logger(__name__)
-
 
 class GNGSAParser(BaseNMEAParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = Logger(__name__)
+
     def parse(self, timestamp: float, fields: list[str]) -> dict[str, Optional[str]]:
         """
         Parse a GNGSA NMEA sentence and extract relevant information.
@@ -36,7 +38,7 @@ class GNGSAParser(BaseNMEAParser):
             elif mode == 3:
                 data["fix_status"] = "3D Fix"
         except (ValueError, IndexError) as e:
-            logger.error(f"Error parsing GNGSA sentence: {','.join(fields)}")
-            logger.error(f"{str(e)}")
+            self.logger.error(f"Error parsing GNGSA sentence: {','.join(fields)}")
+            self.logger.error(f"{str(e)}")
 
         return data

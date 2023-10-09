@@ -17,7 +17,7 @@ This repository contains a Python-based tool designed to parse NMEA logs. This t
 
 ### Dependencies
 
-You will need python 3.9 or later installed. See here for installation steps for your machine.
+You will need python 3.9 or later installed. See [here](https://www.python.org/downloads/) for installation steps for your machine.
 
 ### Installing Poetry
 

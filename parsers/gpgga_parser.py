@@ -2,10 +2,12 @@ from typing import Optional
 from parsers.base_parser import BaseNMEAParser
 from utils.logger import Logger
 
-logger = Logger(__name__)
-
 
 class GPGGAParser(BaseNMEAParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = Logger(__name__)
+
     def parse(self, timestamp: float, fields: list[str]) -> dict[str, Optional[str]]:
         """
         Parse a GPGGA NMEA sentence and extract relevant information.
@@ -53,7 +55,7 @@ class GPGGAParser(BaseNMEAParser):
                     int(satellites_tracked) if satellites_tracked else 0
                 )
         except (ValueError, IndexError) as e:
-            logger.error(f"Error parsing GPGGA sentence: {','.join(fields)}")
-            logger.error(str(e))
+            self.logger.error(f"Error parsing GPGGA sentence: {','.join(fields)}")
+            self.logger.error(str(e))
 
         return data

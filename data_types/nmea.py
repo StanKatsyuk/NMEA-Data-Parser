@@ -6,6 +6,7 @@ class NMEASentence(Enum):
     GPRMC = "GPRMC"
     GPGSA = "GPGSA"
     GNGSA = "GNGSA"
+    GPGSV = "GPGSV"
 
 
 class NMEAField(Enum):

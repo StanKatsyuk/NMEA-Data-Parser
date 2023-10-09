@@ -3,10 +3,11 @@ from parsers.base_parser import BaseNMEAParser
 from utils.logger import Logger
 
 
-logger = Logger(__name__)
-
-
 class GPRMCParser(BaseNMEAParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.logger = Logger(__name__)
+
     def parse(self, timestamp: float, fields: list[str]) -> Optional[dict[str, str]]:
         """
         Parse a GPRMC NMEA sentence and extract relevant information.
@@ -28,7 +29,7 @@ class GPRMCParser(BaseNMEAParser):
             data["fix_status"] = fields[2]  # 'A' = data valid, 'V' = data not valid
             return data
         except (ValueError, IndexError) as e:
-            logger.error(f"Error parsing GPRMC sentence: {','.join(fields)}")
-            logger.error(f"Error details: {str(e)}")
+            self.logger.error(f"Error parsing GPRMC sentence: {','.join(fields)}")
+            self.logger.error(f"Error details: {str(e)}")
 
             return None
