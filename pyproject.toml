@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "nmeanlyzer"
+version = "0.1.0"
+description = "A Python-based tool to parse and visualize NMEA GPS data, track satellite counts over time, compute TTFF, and handle live data streams over UART."
+authors = ["Stanislav Katsyuk"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyyaml = "^6.0.1"
+matplotlib = "^3.8.0"
+pyserial = "^3.5"
+click = "^8.1.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
