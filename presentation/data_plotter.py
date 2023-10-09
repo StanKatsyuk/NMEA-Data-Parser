@@ -4,7 +4,6 @@ from utils.logger import Logger
 
 logger = Logger(__name__)
 
-
 class DataPlotter:
     def plot_data(self, timestamps: list[float], satellite_counts: list[int], ttff: Optional[float]):
         """
@@ -20,18 +19,21 @@ class DataPlotter:
         logger.info(f'Will attempt to plot {timestamps=}, {satellite_counts=}, {ttff=}')
 
         # Plot the data and assign labels
-        plt.plot(timestamps, satellite_counts, '-o', label='Satellites Tracked')
-        if ttff is not None:
-            plt.axvline(ttff, color='red', linestyle='--', label='Time to First Fix (TTFF)')
+        plt.plot(timestamps, satellite_counts, '-o', label='Satellites First Tracked')
+        if ttff:
+            plt.axvline(x=ttff, color='r', linestyle='--', label=f'TTFF at {ttff} seconds')
 
         plt.xlabel('Time (seconds)')
         plt.ylabel('Number of Satellites')
         plt.title('Satellites Tracked vs Time')
         plt.grid(True)
-        
+
+        # Set y-axis ticks to display integers only
+        plt.yticks(range(int(max(satellite_counts)) + 1))
+
         # Create a legend
         plt.legend()
-        
+
         # Show the plot
         plt.show()
 

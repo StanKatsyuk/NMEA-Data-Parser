@@ -21,25 +21,20 @@ def process_offline_file(input: str):
     parser = NMEAParser()
     data_plotter = DataPlotter()
 
-    first_fix_timestamp = None  # Initialize to None
-    ttff_calculated = False
-
-    with open(input, 'r') as file:
-        for line in file:
-            line = line.strip()
-            parser.parse_sentence(line)
-
-            # Calculate TTFF if it hasn't been calculated yet
-            if not ttff_calculated:
-                ttff_calculated = True
-                if parser.get_ttff() is not None:
-                    first_fix_timestamp = parser.get_ttff()
+    # Parse the entire log file using the same parser instance
+    parser.parse_log_file(input)
 
     # Fetching parsed data and plotting
     data = parser.get_data()
     if data:
-        timestamps, satellite_counts = zip(*data)
-        data_plotter.plot_data(timestamps, satellite_counts, first_fix_timestamp)
-        logger.info(f"Time to First Fix (TTFF): {first_fix_timestamp} seconds")
+        timestamps = [point[0] for point in data]
+        satellite_counts = [point[1] for point in data]
+        ttff = parser.get_ttff()
+        print(f"Timestamps: {timestamps}")
+        print(f"Satellite Counts: {satellite_counts}")
+        print(f"TTFF: {ttff}")
+        data_plotter.plot_data(timestamps, satellite_counts, ttff)
+        if ttff is not None:
+            logger.info(f"Time to First Fix (TTFF): {ttff} seconds")
     else:
         logger.warning("No data available to plot.")

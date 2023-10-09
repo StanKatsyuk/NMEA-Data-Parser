@@ -18,7 +18,7 @@ class GPGGAParser(BaseNMEAParser):
                 - 'timestamp': The timestamp as a float.
                 - 'fix_status': Fix status ('No Fix', '2D Fix', '3D Fix') as a string.
                   Defaults to None in case of parsing errors.
-                - 'satellites_tracked': Number of satellites tracked as a string.
+                - 'satellites_tracked': Number of satellites tracked as an integer.
                   Defaults to None in case of parsing errors.
 
             Returns a dictionary with None values for fix_status and satellites_tracked if parsing fails.
@@ -31,12 +31,26 @@ class GPGGAParser(BaseNMEAParser):
             
         try:
             if len(fields) >= 8:
-                data['fix_status'] = fields[6]
-                # Check if the field is not empty before converting to int
-                if fields[7]:
-                    data['satellites_tracked'] = int(fields[7])
-                else:
-                    data['satellites_tracked'] = None
+                # Convert the fix status from a number to a descriptive string
+                fix_status_map = {
+                    '0': 'No Fix',
+                    '1': 'GPS Fix',
+                    '2': 'DGPS Fix',
+                    '3': 'PPS Fix',
+                    '4': 'Real Time Kinematic',
+                    '5': 'Float RTK',
+                    '6': 'Estimated (dead reckoning)',
+                    '7': 'Manual input mode',
+                    '8': 'Simulation mode'
+                }
+                fix_status = fields[6]
+                data['fix_status'] = fix_status_map.get(fix_status, 'Unknown')
+
+                # Parse the number of satellites tracked
+                satellites_tracked = fields[7]
+                data['satellites_tracked'] = int(satellites_tracked) if satellites_tracked else 0
         except (ValueError, IndexError) as e:
             logger.error(f"Error parsing GPGGA sentence: {','.join(fields)}")
-            logger.error(f"{str(e)}")
+            logger.error(str(e))
+
+        return data
